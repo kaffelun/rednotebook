@@ -21,6 +21,11 @@ from __future__ import division
 
 import datetime
 import re
+try:
+    import MeCab
+except ImportError:
+    logging.error('MeCab could not be imported.')
+
 
 
 TEXT_RESULT_LENGTH = 42
@@ -105,6 +110,8 @@ class Day(object):
         # Remember the last edit and preview position
         self.last_edit_pos = None
         self.last_preview_pos = None
+        if MeCab is not None:
+            self.tagger = MeCab.Tagger('-ochasen')
 
     def _get_text(self):
         '''Return the day's text as unicode.'''
@@ -179,12 +186,25 @@ class Day(object):
         return pairs
 
     def get_words(self, with_special_chars=False):
-        # TODO: Use str.join().
+        def japanese_text_split(text):
+            keywords = []
+            for chunk in self.tagger.parse(str(text)).splitlines()[:-1]:
+                if '\t' not in chunk:
+                    chunk += '\t'
+                (surface, feature) = chunk.split('\t')
+                if feature.startswith('名詞'):
+                    keywords.append(surface)
+            return keywords
+        
         all_text = self.text
         for category, content in self.get_category_content_pairs().items():
             all_text += ' ' + ' '.join([category] + content)
 
-        words = all_text.split()
+        if self.tagger is None:
+            words = all_text.split()
+        else:
+            words = japanese_text_split(all_text)
+        
         if with_special_chars:
             return words
 
@@ -229,6 +249,7 @@ class Day(object):
 
     def search_in_text(self, search_text):
         occurence = self.text.upper().find(search_text.upper())
+        print(occurence)
 
         # Check if search_text is in text
         if occurence < 0:
