@@ -5,6 +5,8 @@ search your entries. You can also add pictures, links and customizable
 templates, spell check your notes, and export to plain text, HTML,
 Latex or PDF.
 
+日本語で書く際に単語分割を行うようにして、タグ、ワードクラウド、検索を日本語で出来るようにした。
+
 # Requirements
   - Python 2.7 (3.x not supported)
   - PyYaml (>=3.05)
@@ -13,6 +15,7 @@ Latex or PDF.
 
   - Optional:
     - pygtkspellcheck
+    - MeCab
 
 # Run under Linux (without installation)
 
